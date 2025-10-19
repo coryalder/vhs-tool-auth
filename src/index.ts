@@ -64,7 +64,7 @@ interface LoginQuery {
 
 server.get("/login", loginGetOpts, (req, reply) => {
     let queryObj = req.query as LoginQuery
-  reply.view("views/login.pug", { error: queryObj.error });
+  reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.headers["x-permission"] });
 })
 
 server.post("/login", loginPostOpts, async (req, reply) => {

@@ -1,23 +1,46 @@
 html(lang="en", data-theme="light")
     head
         title
-            block title
+            | #{permission_requested} login page
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        // css: https://thecascade.dev/article/least-amount-of-css/
         style.
-            .complete { background: lightgreen; }
-            .expired { background: lightgray; }
-            .open { background: lightblue; }
-            :root { --border-width: 1px; --border-radius: 0.5em }
+            html { color-scheme: light dark; }
+            body {
+                font-family: system-ui;
+                font-size: 1.25rem;
+                line-height: 1.5;
+            }
+            img,svg,video {
+                max-width: 100%;
+                display: block;
+            }
+            main {
+                max-width: min(70ch, 100% - 4rem);
+                margin-inline: auto;
+            }
+            .panel {
+                position: absolute;
+                margin: auto;
+                top: -50px;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                width: 300px;
+                height: 300px;
+                border-radius: 5px;
+            }
+            input {
+                width: 100%;
+                font-size: 1.25rem;
+            }
     body
-        main.container 
+        main.container
             if error
                 h2=error
-
-            form(action="/login", method="POST")
-                p
-                    label(for="username") username 
-                    input#username(type="text", name="username")
-                p
-                    label(for="username") password 
-                    input#password(type="password", name="password")
-                input(type="submit", value="Login")
+            .panel
+                form(action="/login", method="POST")
+                    p Sign in to #{permission_requested} access using your #[a(href='https://membership.vanhack.ca') NOMOS] credentials
+                    p: input#username(type="text", name="username", placeholder="Username or E-Mail address")
+                    p: input#password(type="password", name="password", placeholder="Password")
+                    input(type="submit", value="Login")
