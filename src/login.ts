@@ -5,50 +5,52 @@ import fetch from 'node-fetch';
 
 // this is done to keep all the config in index.ts, while splitting the code into two files
 interface LoginRouteOptions {
-  jwtCookieName: string;
-  valid_permissions_to_check_for: string[];
+    jwtCookieName: string;
+    valid_permissions_to_check_for: string[];
+}
+
+const loginGetOpts: RouteShorthandOptions = {
+    schema: {
+        querystring: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' }
+            },
+        }
+    }
+}
+
+interface LoginQuery {
+    error: string | undefined;
+}
+
+const loginPostOpts: RouteShorthandOptions = {
+    schema: {
+        body: {
+            type: 'object',
+            required: ['username', 'password'],
+            properties: {
+                username: { type: 'string' },
+                password: { type: 'string' },
+            },
+        }
+    }
+}
+
+interface LoginBody {
+    username: string;
+    password: string;
 }
 
 export async function loginRoutes(server: FastifyInstance, options: LoginRouteOptions) {
-
-    const loginGetOpts: RouteShorthandOptions = {
-        schema: {
-            querystring: {
-                type: 'object',
-                properties: {
-                    error: { type: 'string' }
-                },
-            }
-        }
-    }
-
-    interface LoginQuery {
-        error: string | undefined;
-    }
-
+    // Send an HTML login page. The only dynamic bit of this is the error query param
     server.get("/login", loginGetOpts, (req, reply) => {
         let queryObj = req.query as LoginQuery
         reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.headers["x-permission"] });
     })
 
-    const loginPostOpts: RouteShorthandOptions = {
-        schema: {
-            body: {
-                type: 'object',
-                required: ['username', 'password'],
-                properties: {
-                    username: { type: 'string' },
-                    password: { type: 'string' },
-                },
-            }
-        }
-    }
-
-    interface LoginBody {
-        username: string;
-        password: string;
-    }
-
+    // Takes a username and password, uses it to login and check permissions on nomos
+    // if successful it sets a JWT cookie and bounces you back to the main page.
     server.post("/login", loginPostOpts, async (req, reply) => {
         const userAndPass = req.body as LoginBody;
 
