@@ -34,10 +34,16 @@ html(lang="en", data-theme="light")
                 width: 100%;
                 font-size: 1.25rem;
             }
+            .error {
+                color: red;
+                border-radius: 5px;
+                background: light-dark(#eee, #444);
+                padding: 1em;
+                }
     body
         main.container
             if error
-                h2=error
+                h2.error= error
             .panel
                 form(action="/login", method="POST")
                     p Sign in to #{permission_requested} access using your #[a(href='https://membership.vanhack.ca') NOMOS] credentials
