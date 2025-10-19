@@ -124,7 +124,10 @@ server.post("/login", loginPostOpts, async (req, reply) => {
         }
 
         // ok all the tests are passed, so send a JWT and redirect to the main page
-        const token = await reply.jwtSign({ userId: data.id ?? "no_id" })
+        const token = await reply.jwtSign({
+          userId: data.id ?? "no_id",
+          permission: seeking_permission
+        })
 
         reply
             .setCookie(jwtCookieName, token, {
