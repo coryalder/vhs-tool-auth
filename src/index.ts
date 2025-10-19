@@ -21,7 +21,7 @@ const valid_permissions_to_check_for = [
   "tool:metal:mill"
 ]
 const jwtCookieName = "vhsAuthJwt"
-const jwtSecret = "your_secret_key" // process.env.JWT_SECRET
+const jwtSecret = process.env.JWT_SECRET as string
 
 server.register(fastifyView, { engine: { pug: pug } })
 server.register(fastifyFormbody)

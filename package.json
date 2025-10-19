@@ -7,8 +7,8 @@
   "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
-    "start": "tsc && node build/index.js",
-    "start-prod": "yarn install && tsc && node build/index.js"
+    "start": "tsc && node --env-file=.env build/index.js",
+    "start-prod": "yarn install && tsc && node --env-file=.env build/index.js"
   },
   "devDependencies": {
     "@types/node": "^24.8.1",
