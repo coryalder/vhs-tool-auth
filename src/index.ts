@@ -10,7 +10,16 @@ const server: FastifyInstance = Fastify({ logger: true })
 
 // a whitelist for permissions we're ok with gatewaying
 // the permission we're checking for is passed by the proxy as an X-Permission header
-const valid_permissions_to_check_for = ["laser", "3d-printer"]
+const valid_permissions_to_check_for = [
+  "laser",
+  "3d-printer",
+  "tablesaw",
+  "tool:metal:lathe",
+  "tool:wood:jointer-planer",
+  "tool:wood:cnc",
+  "tool:metal:cnc",
+  "tool:metal:mill"
+]
 const jwtCookieName = "vhsAuthJwt"
 const jwtSecret = "your_secret_key" // process.env.JWT_SECRET
 
