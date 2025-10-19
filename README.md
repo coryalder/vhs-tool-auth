@@ -32,7 +32,7 @@ THe nginx configuration is stored in `nginx.conf`, this needs to be added to a p
         - persist pm2, so it starts on boot: `pm2 startup`
         - clone this repo: `git clone git@github.com:coryalder/vhs-tool-auth.git`
         - start the app using pm2: `pm2 start app.pm2.json`
-        - add the poll script to crontab: `idk how to do this yet`
+        - add the poll script to crontab: `vim /etc/crontab` -> copy the crontab line from the top of `/poll.sh` 
 
 ## Cheatsheet
 
