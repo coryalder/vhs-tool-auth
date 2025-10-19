@@ -14,9 +14,9 @@ const valid_permissions_to_check_for = [
   "laser",
   "3d-printer",
   "tablesaw",
-  "tool:metal:lathe",
   "tool:wood:jointer-planer",
   "tool:wood:cnc",
+  "tool:metal:lathe",
   "tool:metal:cnc",
   "tool:metal:mill"
 ]
