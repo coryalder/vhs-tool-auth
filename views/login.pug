@@ -44,7 +44,7 @@ html(lang="en", data-theme="light")
     body
         main.container
             if error
-                h2.error= error
+                h4.error= error
             .panel
                 form(action="/login", method="POST")
                     p Sign in to #{permission_requested} access using your #[a(href='https://membership.vanhack.ca') NOMOS] credentials
