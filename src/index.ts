@@ -4,10 +4,12 @@ import { fastifyFormbody } from '@fastify/formbody';
 import { fastifyJwt } from '@fastify/jwt';
 import { fastifyCookie } from '@fastify/cookie';
 import pug from 'pug';
-import fetch from 'node-fetch';
+import { loginRoutes } from './login.js';
 
 const server: FastifyInstance = Fastify({ logger: true })
 
+const jwtSecret = process.env.JWT_SECRET
+const jwtCookieName = "vhsAuthJwt"
 // a whitelist for permissions we're ok with gatewaying
 // the permission we're checking for is passed by the proxy as an X-Permission header
 const valid_permissions_to_check_for = [
@@ -20,8 +22,6 @@ const valid_permissions_to_check_for = [
   "tool:metal:cnc",
   "tool:metal:mill"
 ]
-const jwtCookieName = "vhsAuthJwt"
-const jwtSecret = process.env.JWT_SECRET
 
 if (!jwtSecret) {
   throw new Error("Missing a JWT_SECRET environment variable. Check for a .env file in the root of the project, and check that it's being loaded by node --env-file=.env when you're starting this service.");
@@ -41,126 +41,9 @@ server.register(fastifyJwt, {
   }
 })
 
-const loginGetOpts: RouteShorthandOptions = {
-  schema: {
-    querystring: {
-        type: 'object',
-        properties: {
-            error: { type: 'string' }
-        },
-    }
-  }
-}
-
-interface LoginQuery {
-    error: string | undefined;
-}
-
-server.get("/login", loginGetOpts, (req, reply) => {
-    let queryObj = req.query as LoginQuery
-  reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.headers["x-permission"] });
-})
-
-const loginPostOpts: RouteShorthandOptions = {
-  schema: {
-    body: {
-        type: 'object',
-        required: ['username', 'password'],
-        properties: {
-            username: { type: 'string' },
-            password: { type: 'string' },
-        },
-    }
-  }
-}
-
-interface LoginBody {
-    username: string;
-    password: string;
-}
-
-server.post("/login", loginPostOpts, async (req, reply) => {
-    const userAndPass = req.body as LoginBody;
-
-    try {
-        let sp = req.headers["x-permission"]
-        let seeking_permission: string
-        if (Array.isArray(sp)) {
-          seeking_permission = sp[0] ?? ""
-        } else {
-          seeking_permission = sp ?? ""
-        }
-
-        if (!valid_permissions_to_check_for.includes(seeking_permission)) {
-            throw new Error(`This permission (${seeking_permission}) isn't whitelisted, get an admin to add it to valid_permissions_to_check_for`)
-        }
-
-        const loginResponse = await fetch(
-            'https://membership.vanhack.ca/services/web/AuthService1.svc/Login',
-            {
-                method: 'POST',
-                body: JSON.stringify(userAndPass)
-            }
-        );
-
-        const cookie = loginResponse.headers.get("set-cookie");
-        const body = await loginResponse.text();
-
-        if (loginResponse.status != 200 || body != "\"Access Granted\"" || !cookie) {
-            throw new Error(`Login failed: ${body}`);
-        }
-
-        const permissionsResponse = await fetch(
-            'https://membership.vanhack.ca/services/web/AuthService1.svc/CurrentUser',
-            {
-                headers: {
-                    "Cookie": cookie
-                }
-            }
-        );
-
-        let data = await permissionsResponse.json() as any;
-        // {"id":809,"permissions":["door","vetted","door","laser","administrator","grant:laser","tablesaw","tool:wood:jointer-planer","grants","user"]}
-        
-        let permissions = data.permissions;
-        if (!permissions) {
-            throw new Error("No permissions found")
-        }
-
-        if (!Array.isArray(permissions)) {
-            throw new Error("Bad permissions recieved")
-        }
-
-        if (!permissions.includes(seeking_permission)) {
-            throw new Error(`User does not have ${seeking_permission} permission`)
-        }
-
-        // ok all the tests are passed, so send a JWT and redirect to the main page
-        const token = await reply.jwtSign({
-          userId: data.id ?? "no_id",
-          permission: seeking_permission
-        })
-
-        reply
-            .setCookie(jwtCookieName, token, {
-            domain: 'foo.local',
-            path: '/',
-            //secure: true, // send cookie over HTTPS only
-            httpOnly: true,
-            sameSite: true // alternative CSRF protection
-        }).redirect('/')
-
-    } catch (e: unknown) {
-        let errorMessage: string = ""
-
-        if (typeof e === "string") {
-            errorMessage = e;
-        } else if (e instanceof Error) {
-            errorMessage = e.message
-        }
-
-        reply.redirect(`/login?error=${encodeURIComponent(errorMessage)}`)
-    }
+server.register(loginRoutes, {
+  jwtCookieName,
+  valid_permissions_to_check_for
 })
 
 const start = async () => {
@@ -169,8 +52,7 @@ const start = async () => {
 
     const address = server.server.address()
     const port = typeof address === 'string' ? address : address?.port
-    server.log.warn(`starting server @ ${address}:${port}`)
-
+    
   } catch (err) {
     server.log.error(err)
     process.exit(1)
