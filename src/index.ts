@@ -21,7 +21,11 @@ const valid_permissions_to_check_for = [
   "tool:metal:mill"
 ]
 const jwtCookieName = "vhsAuthJwt"
-const jwtSecret = process.env.JWT_SECRET as string
+const jwtSecret = process.env.JWT_SECRET
+
+if (!jwtSecret) {
+  throw new Error("Missing a JWT_SECRET environment variable. Check for a .env file in the root of the project, and check that it's being loaded by node --env-file=.env when you're starting this service.");
+}
 
 server.register(fastifyView, { engine: { pug: pug } })
 server.register(fastifyFormbody)
