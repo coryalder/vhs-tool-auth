@@ -13,12 +13,13 @@ const server: FastifyInstance = Fastify({})
 // the permission we're checking for is passed by the proxy as an X-Permission header
 const valid_permissions_to_check_for = ["laser", "3d-printer"]
 const jwtCookieName = "vhsAuthJwt"
+const jwtSecret = "your_secret_key" // process.env.JWT_SECRET 
 
 server.register(fastifyView, { engine: { pug: pug } })
 server.register(fastifyFormbody)
 server.register(fastifyCookie)
 server.register(fastifyJwt, {
-  secret: 'your_secret_key', // process.env.JWT_SECRET
+  secret: jwtSecret,
   cookie: {
     cookieName: jwtCookieName,
     signed: false
@@ -70,7 +71,7 @@ server.post("/login", loginPostOpts, async (req, reply) => {
     const userAndPass = req.body as LoginBody;
 
     try {
-        let sp = req.headers["X-Permission"]
+        let sp = req.headers["x-permission"]
         let seeking_permission: string
         if (Array.isArray(sp)) {
           seeking_permission = sp[0] ?? ""
@@ -91,8 +92,10 @@ server.post("/login", loginPostOpts, async (req, reply) => {
         );
 
         const cookie = loginResponse.headers.get("set-cookie");
-        if (loginResponse.status != 200 || !cookie) {
-            throw new Error("Login failed");
+        const body = await loginResponse.text();
+
+        if (loginResponse.status != 200 || body != "\"Access Granted\"" || !cookie) {
+            throw new Error(`Login failed: ${body}`);
         }
 
         const permissionsResponse = await fetch(
