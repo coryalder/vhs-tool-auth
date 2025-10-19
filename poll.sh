@@ -9,4 +9,7 @@ if [ "$LOCAL" != "$REMOTE" ]; then
   echo "New update detected: $REMOTE"
   git reset --hard origin/main
   # reset the service
+  pm2 delete vhs-tool-auth
+  pm2 start app.pm2.json
+  pm2 save
 fi
