@@ -1,0 +1,9 @@
+{
+    "apps": [
+        {
+            "name": "vhs-tool-auth",
+            "script": "yarn",
+            "args" : "start-prod"
+        }
+    ]
+}

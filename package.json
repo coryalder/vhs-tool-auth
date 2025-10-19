@@ -1,5 +1,5 @@
 {
-  "name": "vhs_tool_auth",
+  "name": "vhs-tool-auth",
   "version": "1.0.0",
   "description": "authenticate users for proxying to tools",
   "main": "src/index.ts",
@@ -7,7 +7,8 @@
   "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
-    "start": "tsc && node build/index.js"
+    "start": "tsc && node build/index.js",
+    "start-prod": "yarn install && tsc && node build/index.js"
   },
   "devDependencies": {
     "@types/node": "^24.8.1",
