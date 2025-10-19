@@ -40,6 +40,15 @@ const loginGetOpts: RouteShorthandOptions = {
   }
 }
 
+interface LoginQuery {
+    error: string | undefined;
+}
+
+server.get("/login", loginGetOpts, (req, reply) => {
+    let queryObj = req.query as LoginQuery
+  reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.headers["x-permission"] });
+})
+
 const loginPostOpts: RouteShorthandOptions = {
   schema: {
     body: {
@@ -57,15 +66,6 @@ interface LoginBody {
     username: string;
     password: string;
 }
-
-interface LoginQuery {
-    error: string | undefined;
-}
-
-server.get("/login", loginGetOpts, (req, reply) => {
-    let queryObj = req.query as LoginQuery
-  reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.headers["x-permission"] });
-})
 
 server.post("/login", loginPostOpts, async (req, reply) => {
     const userAndPass = req.body as LoginBody;
