@@ -4,7 +4,7 @@
   "description": "authenticate users for proxying to tools",
   "main": "src/index.ts",
   "author": "VHS",
-  "license": "GPLv3",
+  "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
     "start": "tsc && node build/index.js"
