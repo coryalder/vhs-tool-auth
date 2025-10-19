@@ -7,7 +7,7 @@ import { fastifyCookie } from '@fastify/cookie';
 import pug from 'pug';
 import fetch from 'node-fetch';
 
-const server: FastifyInstance = Fastify({})
+const server: FastifyInstance = Fastify({ logger: true })
 
 // a whitelist for permissions we're ok with gatewaying
 // the permission we're checking for is passed by the proxy as an X-Permission header
