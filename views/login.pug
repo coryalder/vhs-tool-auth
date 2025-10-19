@@ -1,0 +1,23 @@
+html(lang="en", data-theme="light")
+    head
+        title
+            block title
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        style.
+            .complete { background: lightgreen; }
+            .expired { background: lightgray; }
+            .open { background: lightblue; }
+            :root { --border-width: 1px; --border-radius: 0.5em }
+    body
+        main.container 
+            if error
+                h2=error
+
+            form(action="/login", method="POST")
+                p
+                    label(for="username") username 
+                    input#username(type="text", name="username")
+                p
+                    label(for="username") password 
+                    input#password(type="password", name="password")
+                input(type="submit", value="Login")

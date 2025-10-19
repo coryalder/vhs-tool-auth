@@ -1,0 +1,26 @@
+{
+  "name": "vhs_tool_auth",
+  "version": "1.0.0",
+  "description": "authenticate users for proxying to tools",
+  "main": "src/index.ts",
+  "author": "VHS",
+  "license": "GPLv3",
+  "type": "module",
+  "scripts": {
+    "start": "tsc && node build/index.js"
+  },
+  "devDependencies": {
+    "@types/node": "^24.8.1",
+    "@types/pug": "^2.0.10",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/formbody": "^8.0.2",
+    "@fastify/jwt": "^10.0.0",
+    "@fastify/view": "^11.1.1",
+    "fastify": "^5.6.1",
+    "node-fetch": "^3.3.2",
+    "pug": "^3.0.3"
+  }
+}
