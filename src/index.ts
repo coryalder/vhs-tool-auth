@@ -1,5 +1,4 @@
 import Fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
-//import { Server, IncomingMessage, ServerResponse } from 'http'
 import { fastifyView } from '@fastify/view';
 import { fastifyFormbody } from '@fastify/formbody';
 import { fastifyJwt } from '@fastify/jwt';
@@ -13,7 +12,7 @@ const server: FastifyInstance = Fastify({ logger: true })
 // the permission we're checking for is passed by the proxy as an X-Permission header
 const valid_permissions_to_check_for = ["laser", "3d-printer"]
 const jwtCookieName = "vhsAuthJwt"
-const jwtSecret = "your_secret_key" // process.env.JWT_SECRET 
+const jwtSecret = "your_secret_key" // process.env.JWT_SECRET
 
 server.register(fastifyView, { engine: { pug: pug } })
 server.register(fastifyFormbody)
