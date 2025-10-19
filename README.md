@@ -13,3 +13,5 @@ How it works:
 The tool is secured by configuring it to deny requests from anything but the proxy server.
 
 THe nginx configuration is stored in `nginx.conf`, this needs to be added to a proxy set up in nginx proxy manager.
+
+![A screenshot of the setup in NPM](images/nginx_proxy_manager_setup.png "NPM setup screenshot")
