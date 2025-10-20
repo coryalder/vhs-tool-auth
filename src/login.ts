@@ -1,5 +1,6 @@
 // login routes
 
+import { CookieSerializeOptions } from "@fastify/cookie";
 import { FastifyInstance, RouteShorthandOptions } from "fastify"
 import fetch from 'node-fetch';
 
@@ -42,11 +43,27 @@ interface LoginBody {
     password: string;
 }
 
+const cookieOptions: CookieSerializeOptions = {
+    domain: 'foo.local',
+    path: '/',
+    //secure: true, // send cookie over HTTPS only (turn this on if we get this service behind https)
+    httpOnly: true,
+    sameSite: "strict" // alternative CSRF protection
+}
+
 export async function loginRoutes(server: FastifyInstance, options: LoginRouteOptions) {
     // Send an HTML login page. The only dynamic bit of this is the error query param
     server.get("/login", loginGetOpts, (req, reply) => {
         let queryObj = req.query as LoginQuery
         reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.headers["x-permission"] });
+    })
+
+    server.get("/login/out", (req, reply) => {
+        let queryObj = req.query as LoginQuery
+        let opts = structuredClone(cookieOptions);
+        opts.expires = new Date(1999, 3, 31);
+        reply.setCookie(options.jwtCookieName, "deleted", opts)
+        reply.redirect("/login")
     })
 
     // Takes a username and password, uses it to login and check permissions on nomos
@@ -113,14 +130,7 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
                 permission: seeking_permission
             })
 
-            reply
-                .setCookie(options.jwtCookieName, token, {
-                    domain: 'foo.local',
-                    path: '/',
-                    //secure: true, // send cookie over HTTPS only
-                    httpOnly: true,
-                    sameSite: true // alternative CSRF protection
-                }).redirect('/')
+            reply.setCookie(options.jwtCookieName, token, cookieOptions).redirect('/')
 
         } catch (e: unknown) {
             let errorMessage: string = ""
