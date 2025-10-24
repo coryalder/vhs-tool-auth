@@ -1,8 +1,5 @@
-// login routes
-
 import { CookieSerializeOptions } from "@fastify/cookie";
 import { FastifyInstance, RouteShorthandOptions } from "fastify"
-import fetch from 'node-fetch';
 
 // this is done to keep all the config in index.ts, while splitting the code into two files
 interface LoginRouteOptions {
