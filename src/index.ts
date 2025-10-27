@@ -10,7 +10,13 @@ import { panelRoutes } from './panel.js';
 import path from 'node:path';
 import { config } from './config.js'
 
-const server: FastifyInstance = Fastify({ logger: true })
+const server: FastifyInstance = Fastify({
+  logger: {
+    transport: {
+      target: "@fastify/one-line-logger",
+    },
+  },
+})
 
 // a whitelist for permissions we're ok with gatewaying
 // the permission we're checking for is passed by the proxy as an X-Permission header

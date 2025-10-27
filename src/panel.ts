@@ -1,5 +1,12 @@
 
 import { FastifyInstance, RouteShorthandOptions, RequestGenericInterface } from "fastify"
+import { config } from './config.js'
+import mqtt from "mqtt";
+
+const client = mqtt.connect(config.mqtt.server, config.mqtt.username ? {
+    username: config.mqtt.username,
+    password: config.mqtt.password ?? ""
+} : {});
 
 // this file isn't checked into version control yet, since it's just an experiment
 // it's quite possible something like this should exist, but in nomos not this repo 
@@ -21,27 +28,16 @@ interface PanelPressInterface extends RequestGenericInterface {
   }
 }
 
-const panelPressOptions: RouteShorthandOptions = {
-    schema: {
-        params: {
-            type: 'object',
-            properties: {
-                action: { type: 'string' }
-            }
-        }
-    }
-}
-
 // here is where we fire of mqtt events
 const panelActions: { [key: string]: ()=>void } = {
      "table-saw": ()=>{
-        console.log("table saw action")
+        client.publish(config.mqtt.topic, "table-saw");
      },
     "jointer-planer": ()=>{
-        console.log("jointer planer action")
+        client.publish(config.mqtt.topic, "jointer-planer");
     },
     "metal-cnc": ()=>{
-        console.log("metal cnc action")
+        client.publish(config.mqtt.topic, "metal-cnc");
     },
     "wood-cnc": ()=>{
         throw new Error("wood cnc action failed")
@@ -54,7 +50,7 @@ export async function panelRoutes(server: FastifyInstance) {
         reply.view("views/panel.pug", { actions: Object.keys(panelActions) });
     })
 
-    server.all<PanelPressInterface>("/panel/press/:action", panelPressOptions, (req, reply) => {
+    server.all<PanelPressInterface>("/panel/press/:action", (req, reply) => {
         const { action } = req.params;
         let actionFn = panelActions[action];
         if (!actionFn) {
@@ -62,6 +58,7 @@ export async function panelRoutes(server: FastifyInstance) {
         }
 
         try {
+            reply.log.info(`performing action ${action}`)
             actionFn();
             reply.send({ action, status: "ok" })
         } catch(error: any) {
@@ -70,3 +67,4 @@ export async function panelRoutes(server: FastifyInstance) {
 
     })
 }
+

@@ -6,6 +6,8 @@ export interface Configuration {
         server: string // "mqtt://127.0.0.1"
         options: any // null
         topic: string // "laser/maintenance"
+        username: string | undefined,
+        password: string | undefined
     }
     jwt: {
         cookieName: string // "vhsAuthJwt",
@@ -14,4 +16,6 @@ export interface Configuration {
     port: number // 3000
 }
 
-export const config: Configuration = require('../config.json');
+import * as data from '../config.json' with { type: 'json' }
+
+export const config: Configuration = data.default;
