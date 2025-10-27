@@ -30,8 +30,9 @@ const Success = " ✅";
 async function performAction(actionName, element) {
     const name = actionName.replace("-", "");
 
-    element.disabled = true;
-    element.innerText = name + Waiting
+    element.disabled = true; // gray out icon
+    element.ariaBusy = true // shows a spinner
+    element.innerText = name
 
     document.getElementById("error").innerText = "";
 
@@ -44,5 +45,6 @@ async function performAction(actionName, element) {
     } finally {
         //unmark button as in progress
         element.disabled = false;
+        element.ariaBusy = false;
     }
 }

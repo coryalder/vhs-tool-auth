@@ -1,9 +1,16 @@
 extends layout 
 
+block title 
+    | Tool unlock panel
+
 block content
     script(src="/static/client.js") 
-        
-    ul 
-        each action in actions
-            li: button(onclick=`performAction("${action}", this)`)= action.replace('-', " ")
-    h4#error
+    
+    article 
+        header 
+            h1 Tool access controls
+        div(role="group")
+            each action in actions
+                button(onclick=`performAction("${action}", this)`)= action.replace('-', " ")
+        footer
+            h4#error

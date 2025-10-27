@@ -1,12 +1,19 @@
 extends layout 
 
+block title 
+    | #{permission_requested} login page
+
 block content
     if error
-        h4.error= error
-    .panel
+        article
+            h4.error= error
+    article
+        header 
+            | Sign in to #{permission_requested} access using your #[a(href='https://membership.vanhack.ca') Nomos] credentials
+           
         form(action="/login", method="POST")
-            p Sign in to #{permission_requested} access using your #[a(href='https://membership.vanhack.ca') NOMOS] credentials
-            p: input#username(type="text", name="username", placeholder="Username or E-Mail address")
-            p: input#password(type="password", name="password", placeholder="Password")
+            input#username(type="text", name="username", placeholder="Username or E-Mail address")
+            input#password(type="password", name="password", placeholder="Password")
             input(type="submit", value="Login")
-            p: sub If you are having trouble logging in, or need to reset your password, visit #[a(href='https://membership.vanhack.ca') membership.vanhack.ca].
+        footer
+            | If you are having trouble logging in, or need to reset your password, visit #[a(href='https://membership.vanhack.ca') membership.vanhack.ca].

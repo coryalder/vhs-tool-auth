@@ -1,46 +1,13 @@
-html(lang="en", data-theme="light")
+html(lang="en")
     head
+        meta(http-equiv="Content-Type", content="text/html;charset=UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(name="color-scheme", content="light dark")
         title
-            | #{permission_requested} login page
+            block title
         <meta name="viewport" content="width=device-width, initial-scale=1">
         // css: https://thecascade.dev/article/least-amount-of-css/
-        style.
-            html { color-scheme: light dark; }
-            body {
-                font-family: system-ui;
-                font-size: 1.25rem;
-                line-height: 1.5;
-            }
-            img,svg,video {
-                max-width: 100%;
-                display: block;
-            }
-            main {
-                max-width: min(70ch, 100% - 4rem);
-                margin-inline: auto;
-            }
-            .panel {
-                position: absolute;
-                margin: auto;
-                top: -50px;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                width: 300px;
-                height: 300px;
-                border-radius: 5px;
-            }
-            input {
-                width: 100%;
-                font-size: 1.25rem;
-            }
-            .error {
-                color: red;
-                border-radius: 5px;
-                background: light-dark(#eee, #444);
-                padding: 1em;
-                text-align: center;
-            }
+        link(rel="stylesheet", href="/static/pico.min.css")
     body
         main.container
             block content
