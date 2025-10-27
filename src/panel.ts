@@ -3,24 +3,11 @@ import { FastifyInstance, RouteShorthandOptions, RequestGenericInterface } from 
 import { config } from './config.js'
 import mqtt from "mqtt";
 
+// connect to mqtt service to send actions
 const client = mqtt.connect(config.mqtt.server, config.mqtt.username ? {
     username: config.mqtt.username,
     password: config.mqtt.password ?? ""
 } : {});
-
-// this file isn't checked into version control yet, since it's just an experiment
-// it's quite possible something like this should exist, but in nomos not this repo 
-
-// What this would do is present a bunch of buttons based on the user's privledges
-// When pressed the buttons would fire off an MQTT request to a smart plug that will activate it
-
-// routes:
-//
-// - GET /panel/ - shows the page of buttons
-// - POST /panel/press/(button_name) - presses a given button
-
-// auth bounces out to the login area, which would need to store
-// a LIST of permissions in the jwt so we know what to show people (now it only stores one)
 
 interface PanelPressInterface extends RequestGenericInterface {
   Params: {
@@ -28,7 +15,7 @@ interface PanelPressInterface extends RequestGenericInterface {
   }
 }
 
-// here is where we fire of mqtt events
+// Here is what we do when each action is triggered
 const panelActions: { [key: string]: ()=>void } = {
      "table-saw": ()=>{
         client.publish(config.mqtt.topic, "table-saw");
@@ -45,11 +32,13 @@ const panelActions: { [key: string]: ()=>void } = {
 }
 
 export async function panelRoutes(server: FastifyInstance) {
-    // Send an HTML login page. The only dynamic bit of this is the error query param
+    // Send the panel page with a list of actions the user can do
     server.get("/panel", (req, reply) => {
         reply.view("views/panel.pug", { actions: Object.keys(panelActions) });
     })
 
+    // respond to the user pressing a button by checking auth and then performing the action
+    // TODO: add a permissions check - store the permissions in the jwt during auth, check it here.
     server.all<PanelPressInterface>("/panel/press/:action", (req, reply) => {
         const { action } = req.params;
         let actionFn = panelActions[action];
@@ -64,7 +53,6 @@ export async function panelRoutes(server: FastifyInstance) {
         } catch(error: any) {
             reply.send({ action, status: error.toString() })
         }
-
     })
 }
 
