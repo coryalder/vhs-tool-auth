@@ -1,0 +1,9 @@
+extends layout 
+
+block content
+    script(src="/static/client.js") 
+        
+    ul 
+        each action in actions
+            li: button(onclick=`performAction("${action}", this)`)= action.replace('-', " ")
+    h4#error

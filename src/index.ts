@@ -1,15 +1,17 @@
-import Fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
+import Fastify, { FastifyInstance } from 'fastify'
 import { fastifyView } from '@fastify/view';
 import { fastifyFormbody } from '@fastify/formbody';
 import { fastifyJwt } from '@fastify/jwt';
 import { fastifyCookie } from '@fastify/cookie';
+import { fastifyStatic } from '@fastify/static';
 import pug from 'pug';
 import { loginRoutes } from './login.js';
+import { panelRoutes } from './panel.js';
+import path from 'node:path';
+import { config } from './config.js'
 
 const server: FastifyInstance = Fastify({ logger: true })
 
-const jwtSecret = process.env.JWT_SECRET
-const jwtCookieName = "vhsAuthJwt"
 // a whitelist for permissions we're ok with gatewaying
 // the permission we're checking for is passed by the proxy as an X-Permission header
 const valid_permissions_to_check_for = [
@@ -23,17 +25,22 @@ const valid_permissions_to_check_for = [
   "tool:metal:mill"
 ]
 
-if (!jwtSecret) {
-  throw new Error("Missing a JWT_SECRET environment variable. Check for a .env file in the root of the project, and check that it's being loaded by node --env-file=.env when you're starting this service.");
+if (!config.jwt.secret || !config.jwt.cookieName) {
+  throw new Error("Missing JWT config. These are loaded from a config.json file in the root of the project. Check ./src/config.ts for the schema.");
 }
 
+// view engine for templates
 server.register(fastifyView, { engine: { pug: pug } })
+
+// handle the login form body
 server.register(fastifyFormbody)
+
+// cookies & jwts
 server.register(fastifyCookie)
 server.register(fastifyJwt, {
-  secret: jwtSecret,
+  secret: config.jwt.secret,
   cookie: {
-    cookieName: jwtCookieName,
+    cookieName: config.jwt.cookieName,
     signed: false
   },
   sign: {
@@ -41,14 +48,26 @@ server.register(fastifyJwt, {
   }
 })
 
+// serve static files
+server.register(fastifyStatic, {
+  root: path.join(import.meta.dirname, '..', 'static'),
+  prefix: '/static/',
+  //constraints: { host: 'example.com' } // optional: default {}
+})
+
+// /login routes
 server.register(loginRoutes, {
-  jwtCookieName,
+  jwtCookieName: config.jwt.cookieName,
   valid_permissions_to_check_for
 })
 
+// /panel routes
+server.register(panelRoutes);
+
+// start the server
 const start = async () => {
   try {
-    await server.listen({ port: 3000, host: "0.0.0.0" })
+    await server.listen({ port: config.port, host: "0.0.0.0" })
 
     const address = server.server.address()
     const port = typeof address === 'string' ? address : address?.port
