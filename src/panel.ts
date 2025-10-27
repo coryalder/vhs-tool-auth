@@ -4,10 +4,7 @@ import { config } from './config.js'
 import mqtt from "mqtt";
 
 // connect to mqtt service to send actions
-const client = mqtt.connect(config.mqtt.server, config.mqtt.username ? {
-    username: config.mqtt.username,
-    password: config.mqtt.password ?? ""
-} : {});
+const client = mqtt.connect(config.mqtt.server, config.mqtt.options);
 
 interface PanelPressInterface extends RequestGenericInterface {
   Params: {

@@ -6,8 +6,6 @@ export interface Configuration {
         server: string // "mqtt://127.0.0.1"
         options: any // null
         topic: string // "laser/maintenance"
-        username: string | undefined,
-        password: string | undefined
     }
     jwt: {
         cookieName: string // "vhsAuthJwt",
