@@ -6,7 +6,6 @@ import { fastifyCookie } from '@fastify/cookie';
 import { fastifyStatic } from '@fastify/static';
 import pug from 'pug';
 import { loginRoutes } from './login.js';
-import { panelRoutes } from './panel.js';
 import path from 'node:path';
 import { config } from './config.js'
 
@@ -66,9 +65,6 @@ server.register(loginRoutes, {
   jwtCookieName: config.jwt.cookieName,
   valid_permissions_to_check_for
 })
-
-// /panel routes
-server.register(panelRoutes);
 
 // start the server
 const start = async () => {
