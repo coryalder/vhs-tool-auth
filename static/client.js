@@ -28,7 +28,7 @@ const Success = " ✅";
 // the UI state changes and error handling for a panel action
 // this is what is called by the button itself
 async function performAction(actionName, element) {
-    const name = actionName.replace("-", "");
+    const name = element.name;
 
     element.disabled = true; // gray out icon
     element.ariaBusy = true // shows a spinner
