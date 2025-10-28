@@ -31,8 +31,7 @@ The nginx configuration is stored in `nginx.conf`, this needs to be added to a p
 - Inside the container
     - Install git, nodejs: `apk add git nodejs`
     - add alpine community repo: `echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories`
-    - Install yarn: `apk add yarn`
-    - Install pm2 globally `yarn global add pm2`
+    - Install pm2 globally `npm install -g pm2`
     - Persist pm2, so it starts on boot: `pm2 startup`
     - Clone this repo: `git clone git@github.com:coryalder/vhs-tool-auth.git`
     - Start the app using pm2: `pm2 start app.pm2.json`

@@ -18,11 +18,6 @@ interface PanelAction {
     fn: ()=>void
 }
 
-interface PanelActionWireType {
-    id: string
-    name: string
-}
-
 // Here is what we do when each action is triggered
 const panelActionList: PanelAction[] = [
     {
@@ -61,19 +56,10 @@ const panelActionIdIndex = panelActionList.reduce((prev: { [key: string]: PanelA
     return prev
 }, {})
 
-// create a version of the list without the fn property to send over the wire
-const panelActionWireList = panelActionList.map((pa: PanelAction)=>{
-    let paw: PanelActionWireType = {
-        id: pa.id,
-        name: pa.name
-    }
-    return paw;
-})
-
 export async function panelRoutes(server: FastifyInstance) {
     // Send the panel page with a list of actions the user can do
     server.get("/panel", (req, reply) => {
-        reply.view("views/panel.pug", { actions: panelActionWireList });
+        reply.view("views/panel.pug", { actions: panelActionList });
     })
 
     // respond to the user pressing a button by checking auth and then performing the action
