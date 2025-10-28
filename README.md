@@ -21,9 +21,10 @@ The nginx configuration is stored in `nginx.conf`, this needs to be added to a p
 # Deployment
 
 - This is deployed on a proxmox lxc container on premise at VHS.
+- It needs a `config.json` file in the root directory, see `src/config.ts` for the schema
 - It's kept running by pm2
 - It's updated periodically by polling this repo using the `poll.sh` script
-- Polling is managed by a crontab entry
+- Update polling is managed by a crontab entry
 
 ## Re-creating the deployment container:
 
