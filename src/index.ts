@@ -8,6 +8,7 @@ import pug from 'pug';
 import { loginRoutes } from './login.js';
 import path from 'node:path';
 import { config } from './config.js'
+import permissionValidator from './permission.js'
 
 const server: FastifyInstance = Fastify({
   logger: {
@@ -53,6 +54,9 @@ server.register(fastifyJwt, {
   }
 })
 
+// register the permission header plugin
+server.register(permissionValidator, { whitelist: valid_permissions_to_check_for })
+
 // serve static files
 server.register(fastifyStatic, {
   root: path.join(import.meta.dirname, '..', 'static'),
@@ -62,8 +66,7 @@ server.register(fastifyStatic, {
 
 // /login routes
 server.register(loginRoutes, {
-  jwtCookieName: config.jwt.cookieName,
-  valid_permissions_to_check_for
+  jwtCookieName: config.jwt.cookieName
 })
 
 // start the server

@@ -4,7 +4,6 @@ import { FastifyInstance, RouteShorthandOptions } from "fastify"
 // this is done to keep all the config in index.ts, while splitting the code into two files
 interface LoginRouteOptions {
     jwtCookieName: string;
-    valid_permissions_to_check_for: string[];
 }
 
 const loginGetOpts: RouteShorthandOptions = {
@@ -48,11 +47,12 @@ const cookieOptions: CookieSerializeOptions = {
     sameSite: "strict" // alternative CSRF protection
 }
 
+
 export async function loginRoutes(server: FastifyInstance, options: LoginRouteOptions) {
     // Send an HTML login page. The only dynamic bit of this is the error query param
     server.get("/login", loginGetOpts, (req, reply) => {
         let queryObj = req.query as LoginQuery
-        reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.headers["x-permission"] });
+        reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.seeking_permission });
     })
 
     server.get("/login/out", (req, reply) => {
@@ -63,23 +63,27 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
         reply.redirect("/login")
     })
 
+    // validate the jwt and return a status code
+    // this is an alternative to the lua jwt validation code
+    server.get("/login/check", async (req, reply) => {
+        try {
+            let payload = await req.jwtVerify()
+            if (req.user.permission != req.seeking_permission) {
+                throw new Error("This cookie doesn't match the requested permission")
+            }
+            reply.status(200).send()
+        } catch (err) {
+            reply.status(401).send(err)
+        }
+    });
+
     // Takes a username and password, uses it to login and check permissions on nomos
     // if successful it sets a JWT cookie and bounces you back to the main page.
     server.post("/login", loginPostOpts, async (req, reply) => {
         const userAndPass = req.body as LoginBody;
 
         try {
-            let sp = req.headers["x-permission"]
-            let seeking_permission: string
-            if (Array.isArray(sp)) {
-                seeking_permission = sp[0] ?? ""
-            } else {
-                seeking_permission = sp ?? ""
-            }
-
-            if (!options.valid_permissions_to_check_for.includes(seeking_permission)) {
-                throw new Error(`This permission (${seeking_permission}) isn't whitelisted, get an admin to add it to valid_permissions_to_check_for`)
-            }
+            let seeking_permission = req.seeking_permission;
 
             const loginResponse = await fetch(
                 'https://membership.vanhack.ca/services/web/AuthService1.svc/Login',

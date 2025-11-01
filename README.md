@@ -5,8 +5,8 @@ This is a small service that allows VHS to use nginx reverse proxies to authenti
 ## How it works:
 
 1. a tool sits behind an nginx reverse proxy, something like a raspberri pi running klipper/mainsail and connected to one or more 3d printers.
-2. nginx uses a short lua script to check requests headed for the tool for a valid JWT cookie
-3. if the cookie isn't present, nginx redirects the request to `/login` which is proxied to this service. It tags these requests with the X-Permission header to select which permission we're checking for.
+2. nginx uses the [`auth_request` module](https://nginx.org/en/docs/http/ngx_http_auth_request_module.html) to query this service to check requests for a valid JWT cookie
+3. if the cookie isn't present and valid, nginx redirects the request to `/login` which is proxied to this service. It tags these requests with the X-Permission header to select which permission we're checking for.
 4. the `/login` endpoint presents a login page, takes the user's username and password, and uses it to login to nomos and check the user's permissions for access to this particular tool.
 5. if the user has permission to use this tool, they are issued a JWT cookie that's valid for 1 day, and re-directed to the tool's main page
 
@@ -14,7 +14,7 @@ The tool is secured by configuring it to deny requests from anything but the pro
 
 ## Proxy setup:
 
-The nginx configuration is stored in `nginx.conf`, this needs to be added to a proxy set up in nginx proxy manager.
+The nginx configuration is stored in `nginx.conf`, this needs to be added to a proxy setup in nginx proxy manager, once per tool.
 
 ![A screenshot of the setup in NPM](images/nginx_proxy_manager_setup.png "NPM setup screenshot")
 
@@ -59,8 +59,3 @@ Another security concern is usernames and passwords. This service takes in membe
 ## JWT security
 
 This service also isn't following JWT best-practices - that is: a short-lived access token and a longer-lived refresh token. Afaik that setup is generally done to prevent replay attacks, which didn't seem like a huge concern. Instead, I've opted for a much simpler setup: a single token that expires after 24 hours.
-
-## JWT secret
-
-The JWT secret used to encode and validate the JWT is shared between the `vhs-tool-auth` server and the lua code in the nginx config. I haven't actually figured out how to deploy these nicely. It's ok to change these - the only result is everybody's tokens will be invalid and they'll have to log in again - but they need to be the same in the nginx config and on the server. The server pulls it from a `JWT_SECRET` environment variable that I've stored in a `.env` file in the root of the project. The nginx config needs to be manually updated. It's the `$jwt_secret` variable at the top of the config.
-
