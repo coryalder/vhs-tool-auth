@@ -55,6 +55,7 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
         reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.seeking_permission });
     })
 
+    // log the user out by erasing the cookie with an expired one
     server.get("/login/out", (req, reply) => {
         let queryObj = req.query as LoginQuery
         let opts = structuredClone(cookieOptions);
@@ -67,7 +68,7 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
     // this is an alternative to the lua jwt validation code
     server.get("/login/check", async (req, reply) => {
         try {
-            let payload = await req.jwtVerify()
+            await req.jwtVerify() // payload is decorated onto the request as req.user
             if (req.user.permission != req.seeking_permission) {
                 throw new Error("This cookie doesn't match the requested permission")
             }

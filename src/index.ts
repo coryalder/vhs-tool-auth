@@ -18,6 +18,9 @@ const server: FastifyInstance = Fastify({
   },
 })
 
+// how long do the JWTs we issue last?
+const jwtCookieExpiration = "1d";
+
 // a whitelist for permissions we're ok with gatewaying
 // the permission we're checking for is passed by the proxy as an X-Permission header
 const valid_permissions_to_check_for = [
@@ -50,7 +53,7 @@ server.register(fastifyJwt, {
     signed: false
   },
   sign: {
-    expiresIn: '1d'
+    expiresIn: jwtCookieExpiration
   }
 })
 
