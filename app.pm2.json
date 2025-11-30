@@ -2,7 +2,7 @@
     "apps": [
         {
             "name": "vhs-tool-auth",
-            "script": "yarn",
+            "script": "npm",
             "args" : "start-prod"
         }
     ]

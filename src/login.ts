@@ -40,7 +40,7 @@ interface LoginBody {
 }
 
 const cookieOptions: CookieSerializeOptions = {
-    domain: 'foo.local',
+    domain: 'vanhack.ca',
     path: '/',
     //secure: true, // send cookie over HTTPS only (turn this on if we get this service behind https)
     httpOnly: true,
