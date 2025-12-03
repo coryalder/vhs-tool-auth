@@ -6,6 +6,10 @@ export interface Configuration {
         cookieName: string // "vhsAuthJwt",
         secret: string // "<jwtSecret>"
     },
+    mqtt: {
+        server: string // "mqtt://127.0.0.1"
+        options: any // { username, password }
+    },
     port: number // 3000
 }
 

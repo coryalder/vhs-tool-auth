@@ -1,5 +1,7 @@
 import { CookieSerializeOptions } from "@fastify/cookie";
 import { FastifyInstance, RouteShorthandOptions } from "fastify"
+import mqtt from "mqtt";
+import { config } from "./config.js";
 
 // this is done to keep all the config in index.ts, while splitting the code into two files
 interface LoginRouteOptions {
@@ -47,6 +49,8 @@ const cookieOptions: CookieSerializeOptions = {
     sameSite: "strict" // alternative CSRF protection
 }
 
+// singleton mqtt client
+const mqttClient = mqtt.connect(config.mqtt.server, config.mqtt.options);
 
 export async function loginRoutes(server: FastifyInstance, options: LoginRouteOptions) {
     // Send an HTML login page. The only dynamic bit of this is the error query param
@@ -57,7 +61,6 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
 
     // log the user out by erasing the cookie with an expired one
     server.get("/login/out", (req, reply) => {
-        let queryObj = req.query as LoginQuery
         let opts = structuredClone(cookieOptions);
         opts.expires = new Date(1999, 3, 31);
         reply.setCookie(options.jwtCookieName, "deleted", opts)
@@ -72,6 +75,7 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
             if (req.user.permission != req.seeking_permission) {
                 throw new Error("This cookie doesn't match the requested permission")
             }
+
             reply.status(200).send()
         } catch (err) {
             reply.status(401).send(err)
@@ -127,10 +131,18 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
             }
 
             // ok all the tests are passed, so send a JWT and redirect to the main page
-            const token = await reply.jwtSign({
-                userId: data.id ?? "no_id",
+            const payload = {
+                userId: data.id ?? "id_missing",
                 permission: seeking_permission
-            })
+            }
+
+            const token = await reply.jwtSign(payload)
+
+            mqttClient.publish(`tools/${payload.permission}/login`, JSON.stringify({
+                userId: payload.userId,
+                permission: payload.permission,
+                timestamp: Date.now().toString()
+            }))
 
             reply.setCookie(options.jwtCookieName, token, cookieOptions).redirect('/')
 
