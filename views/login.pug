@@ -12,7 +12,7 @@ block content
         header 
             | Sign in to #{permission_requested} access using your #[a(href='https://membership.vanhack.ca') Nomos] credentials
            
-        form(action="/login", method="POST")
+        form(action="/login/", method="POST")
             input#username(type="text", name="username", placeholder="Username or E-Mail address")
             input#password(type="password", name="password", placeholder="Password")
             input(type="submit", value="Login")

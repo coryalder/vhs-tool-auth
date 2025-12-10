@@ -64,7 +64,7 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
         let opts = structuredClone(cookieOptions);
         opts.expires = new Date(1999, 3, 31);
         reply.setCookie(options.jwtCookieName, "deleted", opts)
-        reply.redirect("/login")
+        reply.redirect("/login/")
     })
 
     // validate the jwt and return a status code
@@ -84,7 +84,7 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
 
     // Takes a username and password, uses it to login and check permissions on nomos
     // if successful it sets a JWT cookie and bounces you back to the main page.
-    server.post("/login", loginPostOpts, async (req, reply) => {
+    server.post("/login/", loginPostOpts, async (req, reply) => {
         const userAndPass = req.body as LoginBody;
 
         try {
@@ -155,7 +155,7 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
                 errorMessage = e.message
             }
 
-            reply.redirect(`/login?error=${encodeURIComponent(errorMessage)}`)
+            reply.redirect(`/login/?error=${encodeURIComponent(errorMessage)}`)
         }
     })
 }
