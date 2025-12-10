@@ -63,7 +63,7 @@ server.register(permissionValidator, { whitelist: valid_permissions_to_check_for
 // serve static files
 server.register(fastifyStatic, {
   root: path.join(import.meta.dirname, '..', 'static'),
-  prefix: '/static/',
+  prefix: '/login/static/',
   //constraints: { host: 'example.com' } // optional: default {}
 })
 

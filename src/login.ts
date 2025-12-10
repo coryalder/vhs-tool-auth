@@ -54,7 +54,7 @@ const mqttClient = mqtt.connect(config.mqtt.server, config.mqtt.options);
 
 export async function loginRoutes(server: FastifyInstance, options: LoginRouteOptions) {
     // Send an HTML login page. The only dynamic bit of this is the error query param
-    server.get("/login", loginGetOpts, (req, reply) => {
+    server.get("/login/", loginGetOpts, (req, reply) => {
         let queryObj = req.query as LoginQuery
         reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.seeking_permission });
     })
