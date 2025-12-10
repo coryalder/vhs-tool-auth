@@ -54,22 +54,22 @@ const mqttClient = mqtt.connect(config.mqtt.server, config.mqtt.options);
 
 export async function loginRoutes(server: FastifyInstance, options: LoginRouteOptions) {
     // Send an HTML login page. The only dynamic bit of this is the error query param
-    server.get("/login/", loginGetOpts, (req, reply) => {
+    server.get("/access/", loginGetOpts, (req, reply) => {
         let queryObj = req.query as LoginQuery
         reply.view("views/login.pug", { error: queryObj.error, permission_requested: req.seeking_permission });
     })
 
     // log the user out by erasing the cookie with an expired one
-    server.get("/login/out", (req, reply) => {
+    server.get("/access/logout", (req, reply) => {
         let opts = structuredClone(cookieOptions);
         opts.expires = new Date(1999, 3, 31);
         reply.setCookie(options.jwtCookieName, "deleted", opts)
-        reply.redirect("/login/")
+        reply.redirect("/access/")
     })
 
     // validate the jwt and return a status code
     // this is an alternative to the lua jwt validation code
-    server.get("/login/check", async (req, reply) => {
+    server.get("/access/check", async (req, reply) => {
         try {
             await req.jwtVerify() // payload is decorated onto the request as req.user
             if (req.user.permission != req.seeking_permission) {
@@ -84,7 +84,7 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
 
     // Takes a username and password, uses it to login and check permissions on nomos
     // if successful it sets a JWT cookie and bounces you back to the main page.
-    server.post("/login/", loginPostOpts, async (req, reply) => {
+    server.post("/access/", loginPostOpts, async (req, reply) => {
         const userAndPass = req.body as LoginBody;
 
         try {
@@ -155,7 +155,7 @@ export async function loginRoutes(server: FastifyInstance, options: LoginRouteOp
                 errorMessage = e.message
             }
 
-            reply.redirect(`/login/?error=${encodeURIComponent(errorMessage)}`)
+            reply.redirect(`/access/?error=${encodeURIComponent(errorMessage)}`)
         }
     })
 }
